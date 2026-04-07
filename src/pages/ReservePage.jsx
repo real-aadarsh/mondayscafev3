@@ -18,6 +18,11 @@ export default function ReservePage() {
             <p>Planning a weekend breakfast or a small neighborhood gathering? Send us a note.</p>
             <div className="reserve-info-card">
               <p><strong>Book Us</strong><br />(123) 456-7890</p>
+              <p><strong>Address</strong><br />Mondays Cafe, Winnipeg, MB, Canada</p>
+              <p><strong>Hours</strong><br />Mon-Fri: 7:30am-5pm | Sat: 9am-7pm | Sun: 9am-4pm</p>
+              <div className="hero-actions">
+                <a className="button button-secondary" href="https://maps.app.goo.gl/G2eZsAs67ehTDq1V6" target="_blank" rel="noreferrer">Get Direction</a>
+              </div>
             </div>
           </div>
           <ReserveForm />
