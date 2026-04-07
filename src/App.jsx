@@ -40,6 +40,55 @@ const eventSlides = [
   },
 ];
 
+const advisorMenu = [
+  {
+    name: "Breakfast Sandwich + Latte",
+    mood: ["comfort", "focus"],
+    moment: ["morning", "midday"],
+    style: ["classic", "hearty"],
+    description: "Warm, familiar, and filling with a smooth caffeine lift.",
+  },
+  {
+    name: "Protein Oats + Matcha",
+    mood: ["energy", "focus"],
+    moment: ["morning"],
+    style: ["clean", "wellness"],
+    description: "Steady energy and clean taste for productive mornings.",
+  },
+  {
+    name: "Turkey Sandwich + Cold Brew",
+    mood: ["focus", "social"],
+    moment: ["midday", "afternoon"],
+    style: ["hearty", "classic"],
+    description: "Balanced lunch combo for catch-ups or work sessions.",
+  },
+  {
+    name: "Pizza Bagel + Hot Chocolate",
+    mood: ["comfort", "social"],
+    moment: ["afternoon", "evening"],
+    style: ["indulgent", "classic"],
+    description: "Cheesy cozy pick for laid-back conversations.",
+  },
+  {
+    name: "Meat & Cheese Board + Wine",
+    mood: ["social", "celebrate"],
+    moment: ["evening"],
+    style: ["indulgent", "hearty"],
+    description: "An elevated sharing board perfect for event nights.",
+  },
+  {
+    name: "Yogurt Parfait + London Fog",
+    mood: ["calm", "focus"],
+    moment: ["morning", "midday"],
+    style: ["clean", "wellness"],
+    description: "Light, bright, and gentle for a soft paced day.",
+  },
+];
+
+const moods = ["comfort", "energy", "focus", "social", "calm", "celebrate"];
+const moments = ["morning", "midday", "afternoon", "evening"];
+const styles = ["classic", "clean", "hearty", "indulgent", "wellness"];
+
 const reserveInitial = {
   name: "",
   email: "",
@@ -65,9 +114,7 @@ function ReelCard({ src }) {
           if (entry.isIntersecting) {
             const playPromise = node.play();
             if (playPromise && typeof playPromise.catch === "function") {
-              playPromise.catch(() => {
-                // autoplay may be blocked depending on browser policy
-              });
+              playPromise.catch(() => {});
             }
           } else {
             node.pause();
@@ -78,7 +125,6 @@ function ReelCard({ src }) {
     );
 
     observer.observe(node);
-
     return () => {
       observer.disconnect();
       node.pause();
@@ -100,6 +146,9 @@ function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [popupOpen, setPopupOpen] = useState(false);
   const [eventIndex, setEventIndex] = useState(0);
+  const [advisorMood, setAdvisorMood] = useState("comfort");
+  const [advisorMoment, setAdvisorMoment] = useState("morning");
+  const [advisorStyle, setAdvisorStyle] = useState("classic");
   const [reserveData, setReserveData] = useState(reserveInitial);
   const [reserveStatus, setReserveStatus] = useState({ tone: "", text: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -111,12 +160,27 @@ function App() {
     () => [
       { href: "#top", label: "Home" },
       { href: "#breakfast", label: "Menu" },
+      { href: "#advisor", label: "Advisor" },
       { href: "#about", label: "Gallery" },
       { href: "#gallery", label: "Reviews" },
-      { href: "#reserve", label: "Reserve a Table" },
+      { href: "#reserve", label: "Reserve" },
     ],
     [],
   );
+
+  const advisorSuggestions = useMemo(() => {
+    const ranked = advisorMenu
+      .map((item) => {
+        let score = 0;
+        if (item.mood.includes(advisorMood)) score += 4;
+        if (item.moment.includes(advisorMoment)) score += 3;
+        if (item.style.includes(advisorStyle)) score += 3;
+        return { ...item, score };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    return ranked.slice(0, 3);
+  }, [advisorMood, advisorMoment, advisorStyle]);
 
   useEffect(() => {
     document.body.classList.add("page-ready");
@@ -156,12 +220,8 @@ function App() {
 
   useEffect(() => {
     let ticking = false;
-
     const onScroll = () => {
-      if (ticking) {
-        return;
-      }
-
+      if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
         setIsScrolled(window.scrollY > 14);
@@ -175,9 +235,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (sessionStorage.getItem("mondays_v2_event_seen") === "1") {
-      return;
-    }
+    if (sessionStorage.getItem("mondays_v2_event_seen") === "1") return;
 
     const timer = setTimeout(() => {
       setPopupOpen(true);
@@ -188,9 +246,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!popupOpen || eventSlides.length < 2) {
-      return undefined;
-    }
+    if (!popupOpen || eventSlides.length < 2) return undefined;
 
     const timer = setInterval(() => {
       setEventIndex((prev) => (prev + 1) % eventSlides.length);
@@ -201,7 +257,6 @@ function App() {
 
   useEffect(() => {
     const revealItems = Array.from(document.querySelectorAll(".reveal-item"));
-
     if (!("IntersectionObserver" in window)) {
       revealItems.forEach((item) => item.classList.add("is-visible"));
       return undefined;
@@ -210,10 +265,7 @@ function App() {
     const observer = new IntersectionObserver(
       (entries, currentObserver) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
-            return;
-          }
-
+          if (!entry.isIntersecting) return;
           entry.target.classList.add("is-visible");
           currentObserver.unobserve(entry.target);
         });
@@ -239,10 +291,7 @@ function App() {
 
   const onReserveSubmit = async (event) => {
     event.preventDefault();
-
-    if (isSubmitted) {
-      return;
-    }
+    if (isSubmitted) return;
 
     const required = ["name", "email", "phone", "guests", "reservation_date", "reservation_time"];
     const hasMissing = required.some((field) => !String(reserveData[field]).trim());
@@ -268,24 +317,15 @@ function App() {
 
       if (!response.ok) {
         let errorText = "We could not send your request. Please try again.";
-
         try {
           const detail = await response.json();
-          if (detail?.errors?.length) {
-            errorText = detail.errors.map((item) => item.message).join(" ");
-          }
-        } catch {
-          // keep default
-        }
-
+          if (detail?.errors?.length) errorText = detail.errors.map((item) => item.message).join(" ");
+        } catch {}
         throw new Error(errorText);
       }
 
       setIsSubmitted(true);
-      setReserveStatus({
-        tone: "is-success",
-        text: "Reservation request sent successfully. We will contact you shortly to confirm.",
-      });
+      setReserveStatus({ tone: "is-success", text: "Reservation request sent successfully. We will contact you shortly to confirm." });
     } catch (error) {
       setReserveStatus({
         tone: "is-error",
@@ -300,27 +340,15 @@ function App() {
     <>
       <header className={`site-header ${menuOpen ? "menu-open" : ""} ${isScrolled ? "is-scrolled" : ""}`}>
         <div className="container nav-wrap">
-          <a className="brand" href="#top">
-            MONDAYS <span className="brand-script">cafe</span>
-          </a>
+          <a className="brand" href="#top">MONDAYS <span className="brand-script">cafe</span></a>
 
-          <button
-            className="menu-toggle"
-            type="button"
-            aria-expanded={menuOpen}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            onClick={() => setMenuOpen((prev) => !prev)}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
+          <button className="menu-toggle" type="button" aria-expanded={menuOpen} aria-label={menuOpen ? "Close menu" : "Open menu"} onClick={() => setMenuOpen((prev) => !prev)}>
+            <span></span><span></span><span></span>
           </button>
 
           <nav className="site-nav" aria-label="Primary">
             {navLinks.map((item) => (
-              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
-                {item.label}
-              </a>
+              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a>
             ))}
           </nav>
         </div>
@@ -336,22 +364,60 @@ function App() {
           <div className="hero-overlay"></div>
           <div className="container hero-content">
             <img src="/logo.jpg" alt="Mondays Cafe Logo" className="hero-logo" />
-            <p className="hero-copy">
-              Set beneath warm porch lights and the glow of evening windows, our little cafe is where fresh coffee,
-              quiet conversation, and hearty breakfast plates make everyone feel like a regular.
-            </p>
+            <p className="hero-copy">Set beneath warm porch lights and the glow of evening windows, our little cafe is where fresh coffee, quiet conversation, and hearty breakfast plates make everyone feel like a regular.</p>
             <div className="hero-actions">
-              <a className="button button-primary" href="#breakfast">
-                View Menu
-              </a>
-              <a className="button button-secondary" href="#location">
-                Direction
-              </a>
+              <a className="button button-primary" href="#breakfast">View Menu</a>
+              <a className="button button-secondary" href="#advisor">Mood Advisor</a>
             </div>
-            <div className="hero-strip">
-              <span>Specialty Coffee</span>
-              <span>Weekend Events</span>
-              <span>Neighborhood Vibes</span>
+            <div className="hero-strip"><span>Specialty Coffee</span><span>Weekend Events</span><span>Neighborhood Vibes</span></div>
+          </div>
+        </section>
+
+        <section className="section" id="advisor">
+          <div className="container advisor-wrap reveal-item">
+            <div className="section-heading advisor-head">
+              <p className="eyebrow">Smart Experience</p>
+              <h2>Menu Mood Advisor</h2>
+              <p className="advisor-sub">Pick your vibe and we will suggest the best cafe combo for this moment.</p>
+            </div>
+
+            <div className="advisor-panel">
+              <div className="advisor-control">
+                <h3>Mood</h3>
+                <div className="chip-row">
+                  {moods.map((mood) => (
+                    <button key={mood} type="button" className={`chip ${advisorMood === mood ? "is-active" : ""}`} onClick={() => setAdvisorMood(mood)}>{mood}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="advisor-control">
+                <h3>Time</h3>
+                <div className="chip-row">
+                  {moments.map((moment) => (
+                    <button key={moment} type="button" className={`chip ${advisorMoment === moment ? "is-active" : ""}`} onClick={() => setAdvisorMoment(moment)}>{moment}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="advisor-control">
+                <h3>Style</h3>
+                <div className="chip-row">
+                  {styles.map((style) => (
+                    <button key={style} type="button" className={`chip ${advisorStyle === style ? "is-active" : ""}`} onClick={() => setAdvisorStyle(style)}>{style}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="advisor-results">
+              {advisorSuggestions.map((item) => (
+                <article key={item.name} className="advisor-card">
+                  <span className="advisor-score">Match {Math.min(99, item.score * 11)}%</span>
+                  <h4>{item.name}</h4>
+                  <p>{item.description}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
@@ -360,24 +426,11 @@ function App() {
           <div className="container">
             <div className="section-heading reveal-item">
               <p className="eyebrow">Gallery</p>
-              <h2>
-                <a className="follow-heading-link" href="https://www.instagram.com/mondayscafewpg/" target="_blank" rel="noreferrer">
-                  <span>Follow MondaysCafe</span>
-                </a>
-              </h2>
+              <h2><a className="follow-heading-link" href="https://www.instagram.com/mondayscafewpg/" target="_blank" rel="noreferrer"><span>Follow MondaysCafe</span></a></h2>
             </div>
-
             <div className="reels-track">
-              {reels.map((reel) => (
-                <ReelCard key={reel} src={reel} />
-              ))}
-
-              <article className="reel-card follow-card reveal-item">
-                <a className="follow-link" href="https://www.instagram.com/mondayscafewpg/" target="_blank" rel="noreferrer">
-                  <span>Follow</span>
-                  <small>@mondayscafewpg</small>
-                </a>
-              </article>
+              {reels.map((reel) => <ReelCard key={reel} src={reel} />)}
+              <article className="reel-card follow-card reveal-item"><a className="follow-link" href="https://www.instagram.com/mondayscafewpg/" target="_blank" rel="noreferrer"><span>Follow</span><small>@mondayscafewpg</small></a></article>
             </div>
           </div>
         </section>
@@ -386,57 +439,29 @@ function App() {
           <div className="container">
             <div className="section-heading reveal-item">
               <p className="eyebrow">Menu</p>
-              <h2 className="menu-title">Morning and Afternoon Menu</h2>
+              <h2 className="menu-title">Curated Morning to Evening Picks</h2>
             </div>
-
             <div className="menu-v2">
-              <article className="menu-v2-card reveal-item">
-                <h3>Morning Favourites</h3>
-                <p>Espresso, cappuccino, matcha, bagels, breakfast sandwiches, protein oats.</p>
-              </article>
-              <article className="menu-v2-card reveal-item">
-                <h3>Afternoon Bites</h3>
-                <p>Sandwiches, snack boards, soup of the day, curated coffee and tea.</p>
-              </article>
-              <article className="menu-v2-card reveal-item">
-                <h3>Weekend Specials</h3>
-                <p>Seasonal pours, pastry drops, and limited event menu pairings.</p>
-              </article>
+              <article className="menu-v2-card reveal-item"><h3>Morning Favourites</h3><p>Espresso, cappuccino, matcha, bagels, breakfast sandwiches, protein oats.</p></article>
+              <article className="menu-v2-card reveal-item"><h3>Afternoon Bites</h3><p>Sandwiches, snack boards, soup of the day, curated coffee and tea.</p></article>
+              <article className="menu-v2-card reveal-item"><h3>Weekend Specials</h3><p>Seasonal pours, pastry drops, and limited event menu pairings.</p></article>
             </div>
           </div>
         </section>
 
         <section className="section" id="gallery">
           <div className="container">
-            <div className="section-heading reveal-item">
-              <h2 className="reviews-title">GOOGLE REVIEWS</h2>
-            </div>
-
+            <div className="section-heading reveal-item"><h2 className="reviews-title">Google Reviews</h2></div>
             <div className="reviews-track">
               {reviews.map((review) => (
                 <article className="review-card reveal-item" key={review.url}>
-                  <div className="review-head">
-                    <div className="review-user">
-                      <strong>{review.title}</strong>
-                      <span>From live listing</span>
-                    </div>
-                  </div>
-                  <p className="review-stars" aria-label="5 star rating">
-                    *****
-                  </p>
+                  <div className="review-head"><div className="review-user"><strong>{review.title}</strong><span>From live listing</span></div></div>
+                  <p className="review-stars" aria-label="5 star rating">*****</p>
                   <p className="review-copy">{review.copy}</p>
-                  <a className="review-link" href={review.url} target="_blank" rel="noreferrer">
-                    View full review
-                  </a>
+                  <a className="review-link" href={review.url} target="_blank" rel="noreferrer">View full review</a>
                 </article>
               ))}
-
-              <article className="review-card review-open-card reveal-item">
-                <a className="review-open-link" href="https://maps.app.goo.gl/G2eZsAs67ehTDq1V6" target="_blank" rel="noreferrer">
-                  <span>Open Reviews</span>
-                  <small>Google Maps</small>
-                </a>
-              </article>
+              <article className="review-card review-open-card reveal-item"><a className="review-open-link" href="https://maps.app.goo.gl/G2eZsAs67ehTDq1V6" target="_blank" rel="noreferrer"><span>Open Reviews</span><small>Google Maps</small></a></article>
             </div>
           </div>
         </section>
@@ -448,91 +473,35 @@ function App() {
               <div className="location-card">
                 <p className="invite-intro">We would love to welcome you into MondaysCafe for a warm meal and fresh coffee.</p>
                 <div className="invite-details">
-                  <p>
-                    <strong>Address</strong>
-                    <br />
-                    Mondays Cafe
-                    <br />
-                    Winnipeg, MB, Canada
-                  </p>
-                  <p>
-                    <strong>Opening Hours</strong>
-                    <br />
-                    Mon-Fri: 7:30am-5pm
-                    <br />
-                    Sat: 9am-7pm
-                    <br />
-                    Sun: 9am-4pm
-                  </p>
+                  <p><strong>Address</strong><br />Mondays Cafe<br />Winnipeg, MB, Canada</p>
+                  <p><strong>Opening Hours</strong><br />Mon-Fri: 7:30am-5pm<br />Sat: 9am-7pm<br />Sun: 9am-4pm</p>
                 </div>
-                <a className="button button-primary" href="https://maps.app.goo.gl/G2eZsAs67ehTDq1V6" target="_blank" rel="noreferrer">
-                  Get Direction
-                </a>
+                <a className="button button-primary" href="https://maps.app.goo.gl/G2eZsAs67ehTDq1V6" target="_blank" rel="noreferrer">Get Direction</a>
               </div>
             </div>
-
-            <div className="map-card reveal-item">
-              <iframe
-                title="Map showing MondaysCafe"
-                src="https://www.google.com/maps?q=Mondays%20Cafe%2C%20Winnipeg%2C%20MB%2C%20Canada&output=embed"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
-            </div>
+            <div className="map-card reveal-item"><iframe title="Map showing MondaysCafe" src="https://www.google.com/maps?q=Mondays%20Cafe%2C%20Winnipeg%2C%20MB%2C%20Canada&output=embed" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe></div>
           </div>
         </section>
 
-        <section className="section contact-section" id="contact">
+        <section className="section contact-section" id="reserve">
           <div className="container contact-grid">
             <div className="section-copy reveal-item">
               <p className="eyebrow">Contact</p>
               <h2>Reserve a Table</h2>
               <p>Planning a weekend breakfast or a small neighborhood gathering? Send us a note.</p>
-              <div className="reserve-info-card">
-                <p>
-                  <strong>Book Us</strong>
-                  <br />
-                  (123) 456-7890
-                </p>
-              </div>
+              <div className="reserve-info-card"><p><strong>Book Us</strong><br />(123) 456-7890</p></div>
             </div>
 
-            <form className={`contact-form reveal-item ${isSubmitted ? "is-submitted" : ""}`} id="reserve" onSubmit={onReserveSubmit}>
-              <label>
-                Full Name
-                <input type="text" name="name" value={reserveData.name} onChange={onReserveChange} required disabled={isSubmitted} />
-              </label>
-              <label>
-                Email
-                <input type="email" name="email" value={reserveData.email} onChange={onReserveChange} required disabled={isSubmitted} />
-              </label>
-              <label>
-                Phone
-                <input type="tel" name="phone" value={reserveData.phone} onChange={onReserveChange} required disabled={isSubmitted} />
-              </label>
-              <label>
-                Number of Guests
-                <input type="number" name="guests" min="1" max="20" value={reserveData.guests} onChange={onReserveChange} required disabled={isSubmitted} />
-              </label>
-              <label>
-                Reservation Date
-                <input type="date" name="reservation_date" value={reserveData.reservation_date} onChange={onReserveChange} required disabled={isSubmitted} />
-              </label>
-              <label>
-                Reservation Time
-                <input type="time" name="reservation_time" value={reserveData.reservation_time} onChange={onReserveChange} required disabled={isSubmitted} />
-              </label>
-              <label>
-                Special Requests
-                <textarea name="message" rows="4" value={reserveData.message} onChange={onReserveChange} disabled={isSubmitted}></textarea>
-              </label>
+            <form className={`contact-form reveal-item ${isSubmitted ? "is-submitted" : ""}`} onSubmit={onReserveSubmit}>
+              <label>Full Name<input type="text" name="name" value={reserveData.name} onChange={onReserveChange} required disabled={isSubmitted} /></label>
+              <label>Email<input type="email" name="email" value={reserveData.email} onChange={onReserveChange} required disabled={isSubmitted} /></label>
+              <label>Phone<input type="tel" name="phone" value={reserveData.phone} onChange={onReserveChange} required disabled={isSubmitted} /></label>
+              <label>Number of Guests<input type="number" name="guests" min="1" max="20" value={reserveData.guests} onChange={onReserveChange} required disabled={isSubmitted} /></label>
+              <label>Reservation Date<input type="date" name="reservation_date" value={reserveData.reservation_date} onChange={onReserveChange} required disabled={isSubmitted} /></label>
+              <label>Reservation Time<input type="time" name="reservation_time" value={reserveData.reservation_time} onChange={onReserveChange} required disabled={isSubmitted} /></label>
+              <label>Special Requests<textarea name="message" rows="4" value={reserveData.message} onChange={onReserveChange} disabled={isSubmitted}></textarea></label>
 
-              {!isSubmitted && (
-                <button className="button button-primary" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Reserve Table"}
-                </button>
-              )}
-
+              {!isSubmitted && <button className="button button-primary" type="submit" disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Reserve Table"}</button>}
               <p className={`form-status ${reserveStatus.tone ? `is-visible ${reserveStatus.tone}` : ""}`}>{reserveStatus.text}</p>
             </form>
           </div>
@@ -542,35 +511,21 @@ function App() {
       <section className={`events-popup ${popupOpen ? "is-open" : ""}`} aria-hidden={!popupOpen}>
         <div className="events-popup-backdrop" onClick={() => setPopupOpen(false)}></div>
         <div className="events-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="events-popup-title">
-          <button className="events-popup-close" type="button" onClick={() => setPopupOpen(false)} aria-label="Close event popup">
-            x
-          </button>
+          <button className="events-popup-close" type="button" onClick={() => setPopupOpen(false)} aria-label="Close event popup">x</button>
           <p className="eyebrow">Now Happening</p>
           <h3 id="events-popup-title">Upcoming Events</h3>
           <p className="events-popup-copy">Tap through this event preview and open full details.</p>
 
           <div className="events-popup-media">
             <div className="events-slides" aria-label="Event image gallery">
-              {eventSlides.map((slide, idx) => (
-                <img className={`events-slide ${idx === eventIndex ? "is-active" : ""}`} src={slide.image} alt={slide.title} key={slide.title} loading="lazy" />
-              ))}
-
-              <button className="events-nav events-nav-prev" type="button" onClick={prevEvent} aria-label="Previous">
-                &lt;
-              </button>
-              <button className="events-nav events-nav-next" type="button" onClick={nextEvent} aria-label="Next">
-                &gt;
-              </button>
-              <a className="button button-primary events-more-info-overlay" href="https://linktr.ee/mondays" target="_blank" rel="noreferrer">
-                More Info
-              </a>
+              {eventSlides.map((slide, idx) => <img className={`events-slide ${idx === eventIndex ? "is-active" : ""}`} src={slide.image} alt={slide.title} key={slide.title} loading="lazy" />)}
+              <button className="events-nav events-nav-prev" type="button" onClick={prevEvent} aria-label="Previous">&lt;</button>
+              <button className="events-nav events-nav-next" type="button" onClick={nextEvent} aria-label="Next">&gt;</button>
+              <a className="button button-primary events-more-info-overlay" href="https://linktr.ee/mondays" target="_blank" rel="noreferrer">More Info</a>
             </div>
           </div>
 
-          <div className="events-slide-meta">
-            <h4 className="events-slide-title">{activeEvent.title}</h4>
-            <p className="events-slide-description">{activeEvent.description}</p>
-          </div>
+          <div className="events-slide-meta"><h4 className="events-slide-title">{activeEvent.title}</h4><p className="events-slide-description">{activeEvent.description}</p></div>
         </div>
       </section>
 
@@ -579,9 +534,7 @@ function App() {
           <div className="footer-card reveal-item">
             <div className="footer-grid">
               <div>
-                <a className="brand footer-brand" href="#top">
-                  MONDAYS <span className="brand-script">cafe</span>
-                </a>
+                <a className="brand footer-brand" href="#top">MONDAYS <span className="brand-script">cafe</span></a>
                 <p>Warm coffee, soft lighting, and a welcoming table in the heart of the neighborhood.</p>
               </div>
               <div>
@@ -592,21 +545,13 @@ function App() {
               <div>
                 <h3>Follow</h3>
                 <div className="social-links">
-                  <a href="https://www.instagram.com/mondayscafewpg/" target="_blank" rel="noreferrer">
-                    Instagram
-                  </a>
-                  <a href="https://linktr.ee/mondays" target="_blank" rel="noreferrer">
-                    Linktree
-                  </a>
-                  <a href="https://maps.app.goo.gl/G2eZsAs67ehTDq1V6" target="_blank" rel="noreferrer">
-                    Google Maps
-                  </a>
+                  <a href="https://www.instagram.com/mondayscafewpg/" target="_blank" rel="noreferrer">Instagram</a>
+                  <a href="https://linktr.ee/mondays" target="_blank" rel="noreferrer">Linktree</a>
+                  <a href="https://maps.app.goo.gl/G2eZsAs67ehTDq1V6" target="_blank" rel="noreferrer">Google Maps</a>
                 </div>
               </div>
             </div>
-            <div className="footer-bottom">
-              <p>&copy; {new Date().getFullYear()} MondaysCafe. All rights reserved.</p>
-            </div>
+            <div className="footer-bottom"><p>&copy; {new Date().getFullYear()} MondaysCafe. All rights reserved.</p></div>
           </div>
         </div>
       </footer>
