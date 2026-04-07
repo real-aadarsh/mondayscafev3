@@ -110,6 +110,34 @@ function HomePage() {
         </div>
       </section>
 
+      <section className="section location-section" id="location">
+        <div className="container location-grid">
+          <div className="section-copy reveal-item">
+            <p className="eyebrow">Visit Us</p>
+            <h2>Directions and Reservations</h2>
+            <div className="location-card">
+              <p className="invite-intro">Walk in for coffee or reserve your table in advance for brunch and event evenings.</p>
+              <div className="invite-details">
+                <p><strong>Address</strong><br />Mondays Cafe<br />Winnipeg, MB, Canada</p>
+                <p><strong>Opening Hours</strong><br />Mon-Fri: 7:30am-5pm<br />Sat: 9am-7pm<br />Sun: 9am-4pm</p>
+              </div>
+              <div className="hero-actions">
+                <a className="button button-primary" href="https://maps.app.goo.gl/G2eZsAs67ehTDq1V6" target="_blank" rel="noreferrer">Get Direction</a>
+                <a className="button button-secondary" href="/reserve">Reserve Table</a>
+              </div>
+            </div>
+          </div>
+          <div className="map-card reveal-item">
+            <iframe
+              title="Map showing MondaysCafe"
+              src="https://www.google.com/maps?q=Mondays%20Cafe%2C%20Winnipeg%2C%20MB%2C%20Canada&output=embed"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        </div>
+      </section>
+
       <section className="section" id="gallery">
         <div className="container">
           <div className="section-heading reveal-item"><h2 className="reviews-title">Google Reviews</h2></div>

@@ -4,7 +4,7 @@ const links = [
   { to: "/", label: "Home" },
   { to: "/menu", label: "Menu" },
   { to: "/events", label: "Events" },
-  { to: "/reserve", label: "Reserve" },
+  { to: "/reserve", label: "Reserve a Table" },
 ];
 
 export default function Header({ menuOpen, setMenuOpen, isScrolled }) {
