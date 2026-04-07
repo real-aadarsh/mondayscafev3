@@ -1,78 +1,62 @@
-﻿import { useMemo, useState } from "react";
-import { menuCatalog } from "../data/siteData";
-
-const categories = ["All", ...new Set(menuCatalog.map((item) => item.category))];
+import { menuPosters } from "../data/siteData";
 
 export default function MenuPage() {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
-  const [tag, setTag] = useState("all");
-
-  const tags = useMemo(() => {
-    const unique = new Set();
-    menuCatalog.forEach((item) => item.tags.forEach((t) => unique.add(t)));
-    return ["all", ...unique];
-  }, []);
-
-  const filtered = useMemo(() => {
-    return menuCatalog.filter((item) => {
-      const matchesCategory = category === "All" || item.category === category;
-      const matchesTag = tag === "all" || item.tags.includes(tag);
-      const q = query.trim().toLowerCase();
-      const matchesQuery = q.length === 0 || item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q);
-      return matchesCategory && matchesTag && matchesQuery;
-    });
-  }, [category, query, tag]);
-
   return (
     <main className="route-main">
       <section className="section route-hero reveal-item">
         <div className="container">
-          <p className="eyebrow">Curated Selection</p>
-          <h1 className="route-title">Signature Menu</h1>
-          <p className="route-copy">Discover pairings by style, mood, and time with a refined menu experience.</p>
+          <p className="eyebrow">Menu</p>
+          <h1 className="route-title">Morning and Afternoon Menu</h1>
+          <p className="route-copy">Exact V1 menu details with all item breakdowns and pricing.</p>
         </div>
       </section>
 
       <section className="section">
-        <div className="container menu-search-wrap reveal-item">
-          <input
-            className="menu-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search dishes, drinks, or vibes"
-          />
+        <div className="container menu-posters-v2">
+          {menuPosters.map((poster) => (
+            <article className="menu-poster-v2 reveal-item" key={poster.title}>
+              <h2 className="menu-poster-title">{poster.title}</h2>
 
-          <div className="chip-row">
-            {categories.map((item) => (
-              <button key={item} className={`chip ${category === item ? "is-active" : ""}`} type="button" onClick={() => setCategory(item)}>
-                {item}
-              </button>
-            ))}
-          </div>
-
-          <div className="chip-row">
-            {tags.map((item) => (
-              <button key={item} className={`chip ${tag === item ? "is-active" : ""}`} type="button" onClick={() => setTag(item)}>
-                {item}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="container menu-grid route-grid">
-          {filtered.map((item) => (
-            <article key={`${item.name}-${item.category}`} className="menu-item-card reveal-item">
-              <div className="menu-item-top">
-                <h3>{item.name}</h3>
-                <span>{item.price}</span>
+              <div className="menu-poster-top">
+                {poster.columnsTop.map((column) => (
+                  <div className="menu-poster-col" key={column.heading}>
+                    <h3>{column.heading}</h3>
+                    {column.meta && <p className="menu-poster-meta">{column.meta}</p>}
+                    {column.lines.map((line, index) => (
+                      <p className="menu-poster-line" key={`${column.heading}-${index}`}>
+                        <span>{line.name}</span>
+                        {line.price && <strong>{line.price}</strong>}
+                      </p>
+                    ))}
+                    {column.notes?.map((note, index) => (
+                      <div className="menu-poster-note-block" key={`${column.heading}-note-${index}`}>
+                        {note.heading && <h4>{note.heading}</h4>}
+                        {note.text && <p className="menu-poster-note">{note.text}</p>}
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
-              <p className="menu-item-cat">{item.category}</p>
-              <p>{item.description}</p>
-              <div className="menu-tags">
-                {item.tags.map((pill) => (
-                  <small key={pill}>{pill}</small>
+
+              <div className="menu-poster-divider"></div>
+              <h3 className="menu-poster-section">{poster.sectionBottom.title}</h3>
+
+              <div className="menu-poster-bottom">
+                {poster.sectionBottom.columns.map((column, colIndex) => (
+                  <div className="menu-poster-col" key={`${poster.title}-bottom-${colIndex}`}>
+                    {column.map((line, lineIndex) => (
+                      <div key={`${poster.title}-line-${colIndex}-${lineIndex}`}>
+                        {line.noteHeading && <h4>{line.noteHeading}</h4>}
+                        {line.noteMeta && <p className="menu-poster-meta">{line.noteMeta}</p>}
+                        {line.name && (
+                          <p className="menu-poster-line">
+                            <span>{line.name}</span>
+                            {line.price && <strong>{line.price}</strong>}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 ))}
               </div>
             </article>

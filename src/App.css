@@ -490,6 +490,83 @@ body.page-ready .hero-content {
   margin-bottom: 0.7rem;
 }
 
+.menu-posters-v2 {
+  display: grid;
+  gap: 1rem;
+}
+
+.menu-poster-v2 {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(35, 30, 25, 0.92), rgba(22, 19, 16, 0.92));
+  padding: 1rem;
+}
+
+.menu-poster-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 0.7rem;
+}
+
+.menu-poster-top,
+.menu-poster-bottom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.menu-poster-col h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.menu-poster-col h4 {
+  margin: 0.45rem 0 0.25rem;
+  color: #e8d8bd;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.menu-poster-meta {
+  margin: 0 0 0.35rem;
+  color: var(--gold);
+  font-size: 0.82rem;
+}
+
+.menu-poster-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin: 0.35rem 0;
+  color: var(--muted);
+}
+
+.menu-poster-line span {
+  white-space: pre-line;
+}
+
+.menu-poster-line strong {
+  color: var(--gold-soft);
+  white-space: nowrap;
+}
+
+.menu-poster-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.menu-poster-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 0.8rem 0 0.7rem;
+}
+
+.menu-poster-section {
+  font-size: 1.35rem;
+  margin-bottom: 0.65rem;
+}
+
 .menu-item-top {
   display: flex;
   justify-content: space-between;
@@ -762,6 +839,8 @@ body.page-ready .hero-content {
   .advisor-results,
   .menu-v2,
   .menu-grid,
+  .menu-poster-top,
+  .menu-poster-bottom,
   .event-page-grid,
   .footer-grid {
     grid-template-columns: 1fr;

@@ -123,3 +123,105 @@ export const menuCatalog = [
   { name: "Irish Coffee", category: "Drinks", tags: ["comfort", "evening"], description: "Coffee cocktail served warm.", price: "$9.00" },
   { name: "Kilter Pilsner", category: "Drinks", tags: ["social", "evening"], description: "Crisp lager (5%).", price: "$6.00" },
 ];
+
+export const menuPosters = [
+  {
+    title: "Morning Menu",
+    columnsTop: [
+      {
+        heading: "Coffees",
+        meta: "16oz",
+        lines: [
+          { name: "Drip Coffee", price: "2.00$" },
+          { name: "Cold Brew", price: "4.00$" },
+          { name: "Americano", price: "4.00$" },
+          { name: "Latte", price: "5.00$" },
+          { name: "Coratado", price: "4.00$" },
+          { name: "Cappuccino", price: "4.50$" },
+          { name: "Mocha", price: "5.50$" },
+        ],
+        notes: [
+          { heading: "Flavour Shots", text: "Vanilla & SF Vanilla, Caramel & SF Caramel, Hazelnut, Simple Syrup" },
+          { heading: "Alt Milks", text: "Oat Milk & Almond Milk" },
+        ],
+      },
+      {
+        heading: "Breakfast",
+        lines: [
+          { name: "Bagels\nRosemary Sea Salt\nAll Dressed\nCheddar", price: "4.00$" },
+          { name: "Spreads\nMargarine\nPlain Cream Cheese\nHerby Garlic\nJalapeno Cheddar" },
+          { name: "Yogurt Parfait\nVanilla Greek Yogurt,\nGranola, and\nBlueberries", price: "6.00$" },
+          { name: "Breakfast Sandwiches\nBacon Egg and Cheese\nSausge Egg and Cheese", price: "4.25$" },
+          { name: "Protein Oats\nBrownie Batter,\nCinnamon Toast", price: "5.00$" },
+        ],
+      },
+    ],
+    sectionBottom: {
+      title: "Non Coffee",
+      columns: [
+        [
+          { name: "Hot Tea (Various Flavors)\nMint, Earl Gray, Breakfast,\nHerbal, Green", price: "3.50$" },
+          { name: "Fruity Pebble\nElderberry Hibiscus Tea,\nOat Milk, Vanilla", price: "5.50$" },
+          { name: "Hot Chocolate", price: "4.00$" },
+        ],
+        [
+          { name: "Matcha\nCeremonial Grade\nMatcha", price: "6.00$" },
+          { name: "Chai Latte", price: "5.50$" },
+          { name: "London Fog", price: "5.50$" },
+          { name: "Kombucha", price: "5.50$" },
+        ],
+      ],
+    },
+  },
+  {
+    title: "Afternoon Menu",
+    columnsTop: [
+      {
+        heading: "Lunch",
+        notes: [{ heading: "Sandwichs" }],
+        lines: [
+          {
+            name: "Turkey\nRoasted Turkey, Cheddar\nCheese, Mayo, Mustard,\nDill Pickle, Red Onion,\nIceberg Lettuce",
+            price: "8.50$",
+          },
+          { name: "Ham and Cheese\nHam, American Cheese,\nDijon-Mayo", price: "5.50$" },
+          { name: "Egg Salad\nEggs, Mayo, Green Onion", price: "5.50$" },
+          { name: "Pasta Salad:\nCreamy Ranch\nDressing & Dill\nPickles", price: "5.00$" },
+        ],
+      },
+      {
+        heading: "Snacks & Lunch",
+        lines: [
+          {
+            name: "Meat and Cheese Board:\nAged Cheddar Cheese\nGenoa Salami\nSeason Fruit\nPretzal Crisps & Pickels",
+            price: "10.00$",
+          },
+          { name: "Snacker Cup\nAged Cheddar Cheese\nGenoa Salami\nPretzal Crisps", price: "6.00$" },
+          { name: "Pizza Bagel:\nPizza Sauce, Mozzarella\nCheese\nAdd Pepperoni +1.00$", price: "6.00$" },
+          { name: "Soup:\nRotating Daily", price: "4-6.00$" },
+        ],
+      },
+    ],
+    sectionBottom: {
+      title: "Alochal",
+      columns: [
+        [
+          { noteHeading: "Wine", noteMeta: "6oz" },
+          { name: "Red\nVeneto Rosso", price: "9.00$" },
+          { name: "White\nLamberti Pinot Grigio", price: "9.00$" },
+          { name: "Rose\nMontal Rieutort La Marquise", price: "9.00$" },
+          { noteHeading: "Beer" },
+          { name: "Kilter Juicii\nHazy IPA (6.5%)", price: "9.00$" },
+        ],
+        [
+          { noteHeading: "Extra Fun" },
+          { name: "Baileys Shot", price: "+3.00$" },
+          { name: "Mimosa", price: "9.00$" },
+          { name: "Aperol Spritz", price: "14.00$" },
+          { name: "Irish Coffee", price: "9.00$" },
+          { name: "Kilter Plisner\nCrisp Lager (5%)", price: "6.00$" },
+        ],
+      ],
+    },
+  },
+];
